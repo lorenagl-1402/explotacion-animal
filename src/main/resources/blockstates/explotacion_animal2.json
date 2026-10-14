@@ -1,0 +1,15 @@
+[
+  {
+    "multipart": [
+      {
+        "when": {
+          "block": "explotacion_animal2"
+        },
+        "apply": {
+          "model": "examplemod:block/explotacion_animal2",
+          "texture": "examplemod:block/explotacion_animal2"
+        }
+      }
+    ]
+  }
+]

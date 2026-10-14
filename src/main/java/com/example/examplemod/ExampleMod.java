@@ -39,37 +39,25 @@ public final class ExampleMod {
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "examplemod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Creates a new Block with the id "examplemod:example_block", combining the namespace and path
-    public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block",
-        () -> new Block(BlockBehaviour.Properties.of()
-            .setId(BLOCKS.key("example_block"))
+    // Bloque con el modelo explotacion_animal2: al pulsarlo sale una gallina, una explosion cercana o el dragon
+    public static final RegistryObject<Block> EXPLOTACION_ANIMAL_BLOCK = BLOCKS.register("explotacion_animal",
+        () -> new ExplotacionAnimalBlock(BlockBehaviour.Properties.of()
+            .setId(BLOCKS.key("explotacion_animal"))
             .mapColor(MapColor.STONE)
+            .strength(2.0f)
+            .noOcclusion()
         )
     );
-    // Creates a new BlockItem with the id "examplemod:example_block", combining the namespace and path
-    public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block",
-        () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties().setId(ITEMS.key("example_block")))
+    public static final RegistryObject<Item> EXPLOTACION_ANIMAL_ITEM = ITEMS.register("explotacion_animal",
+        () -> new BlockItem(EXPLOTACION_ANIMAL_BLOCK.get(), new Item.Properties().setId(ITEMS.key("explotacion_animal")))
     );
 
-    // Creates a new food item with the id "examplemod:example_id", nutrition 1 and saturation 2
-    public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item",
-        () -> new Item(new Item.Properties()
-            .setId(ITEMS.key("example_item"))
-            .food(new FoodProperties.Builder()
-                .alwaysEdible()
-                .nutrition(1)
-                .saturationModifier(2f)
-                .build()
-            )
-        )
-    );
-
-    // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
+    // Pestana creativa del mod, con el boton como icono, colocada despues de la pestana de combate
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
+            .icon(() -> EXPLOTACION_ANIMAL_ITEM.get().getDefaultInstance())
             .displayItems((_, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXPLOTACION_ANIMAL_ITEM.get());
             }).build());
 
     public ExampleMod(FMLJavaModLoadingContext context) {
@@ -85,8 +73,6 @@ public final class ExampleMod {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modBusGroup);
 
-        // Register the item to a creative tab
-        BuildCreativeModeTabContentsEvent.BUS.addListener(ExampleMod::addCreative);
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -102,12 +88,6 @@ public final class ExampleMod {
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
-    }
-
-    // Add the example block item to the building blocks tab
-    private static void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
-            event.accept(EXAMPLE_BLOCK_ITEM);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

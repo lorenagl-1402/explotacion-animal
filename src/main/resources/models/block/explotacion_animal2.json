@@ -1,0 +1,24 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "examplemod:block/explotacion_animal2",
+    "texture": "examplemod:block/explotacion_animal2"
+  },
+  "display": {
+    "gui": {
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "translation": { "x": 0, "y": 0, "z": 0 },
+      "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+    },
+    "ground": {
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "translation": { "x": 0, "y": 0, "z": 0 },
+      "scale": { "x": 0.25, "y": 0.25, "z": 0.25 }
+    },
+    "fixed": {
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "translation": { "x": 0, "y": 0, "z": 0 },
+      "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+    }
+  }
+}
