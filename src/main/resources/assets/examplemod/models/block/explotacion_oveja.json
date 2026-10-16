@@ -1,0 +1,7 @@
+{
+  "parent": "examplemod:block/explotacion_boton_template",
+  "textures": {
+    "boton1": "examplemod:block/texture_boton1_blanco",
+    "boton2": "examplemod:block/texture_boton2_blanco"
+  }
+}

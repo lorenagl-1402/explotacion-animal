@@ -1,10 +1,13 @@
 package com.example.examplemod;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -13,14 +16,18 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.clock.ClockTimeMarkers;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.chicken.ChickenVariant;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.cow.CowVariant;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -34,22 +41,32 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-// Bloque "explotacion_animal2": al pulsarlo hay un 80% de gallina, un 15% de explosion en el boton (sin matar) y un 5% de dragon con rayo de noche.
-// Ademas, un 1% de las veces cae un rayo celestial que perfora todo hasta la bedrock (menos las gallinas).
+// Boton "explotacion animal": al pulsarlo hay un 80% de que salga el animal del bloque, un 15% de explosion
+// en el boton (sin matar) y un 5% de dragon con rayo de noche. Ademas, un 1% de las veces cae un rayo celestial
+// que perfora todo hasta la bedrock (menos el animal de este bloque).
+// El animal y el color del boton dependen del bloque: gallinas = rojo, vacas = negro, ovejas = blanco.
 public class ExplotacionAnimalBlock extends Block {
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
 
+    // Que animal sale al pulsar el boton (y cual sobrevive al rayo celestial)
+    public enum Kind {
+        CHICKEN, COW, SHEEP
+    }
+
     private static final double CELESTIAL_RAY_CHANCE = 0.01D;
-    private static final int CHICKEN_CHANCE = 80;
+    private static final int ANIMAL_CHANCE = 80;
     private static final int EXPLOSION_CHANCE = 15; // el resto (5%) es el dragon
     private static final int PRESS_TICKS = 8;
     private static final double BLAST_RADIUS = 5.0D;
     private static final int RAY_RADIUS = 5;
-    private static final double MIN_CHICKEN_SCALE = 0.2D;
-    private static final double MAX_CHICKEN_SCALE = 5.0D;
+    // distancia desde el centro del boton a la que sale el animal, para que no lo tape al pulsarlo
+    private static final double SPAWN_DISTANCE = 1.8D;
 
-    public ExplotacionAnimalBlock(Properties properties) {
+    private final Kind kind;
+
+    public ExplotacionAnimalBlock(Properties properties, Kind kind) {
         super(properties);
+        this.kind = kind;
         registerDefaultState(stateDefinition.any().setValue(PRESSED, false));
     }
 
@@ -74,11 +91,11 @@ public class ExplotacionAnimalBlock extends Block {
                 return InteractionResult.SUCCESS;
             }
             int roll = level.getRandom().nextInt(100);
-            if (roll < CHICKEN_CHANCE) {
-                // la gallina sale en el bloque de al lado, el de la cara pulsada
-                spawnChicken(serverLevel, pos.relative(hit.getDirection()));
+            if (roll < ANIMAL_CHANCE) {
+                // el animal sale delante del boton, en la cara pulsada, pero un poco mas lejos para no taparlo
+                spawnAnimal(serverLevel, pos, hit.getDirection());
                 confetti(serverLevel, pos);
-            } else if (roll < CHICKEN_CHANCE + EXPLOSION_CHANCE) {
+            } else if (roll < ANIMAL_CHANCE + EXPLOSION_CHANCE) {
                 buttonExplosion(serverLevel, pos);
             } else {
                 spawnDragon(serverLevel, pos);
@@ -95,24 +112,92 @@ public class ExplotacionAnimalBlock extends Block {
         }
     }
 
-    // Gallina indestructible, de cualquiera de las razas de vanilla y de un tamano aleatorio (de diminuta a gigante)
-    private static void spawnChicken(ServerLevel level, BlockPos pos) {
-        RandomSource random = level.getRandom();
-        Chicken chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
-        if (chicken == null) {
+    // Animal de tamano normal e indestructible, con una variante al azar de las de vanilla.
+    // Sale un poco separado del boton (en la direccion de la cara pulsada) para no taparlo.
+    private void spawnAnimal(ServerLevel level, BlockPos buttonPos, Direction direction) {
+        Entity animal = switch (kind) {
+            case CHICKEN -> createChicken(level);
+            case COW -> createCow(level);
+            case SHEEP -> createSheep(level);
+        };
+        if (animal == null) {
             return;
         }
-        List<Holder.Reference<ChickenVariant>> variants = level.registryAccess().lookupOrThrow(Registries.CHICKEN_VARIANT).listElements().toList();
-        chicken.setVariant(variants.get(random.nextInt(variants.size())));
+        RandomSource random = level.getRandom();
+        animal.setInvulnerable(true);
 
-        // escala logaritmica para que haya tantas muy chicas como muy grandes
-        double minLog = Math.log(MIN_CHICKEN_SCALE);
-        double maxLog = Math.log(MAX_CHICKEN_SCALE);
-        chicken.getAttribute(Attributes.SCALE).setBaseValue(Math.exp(minLog + random.nextDouble() * (maxLog - minLog)));
+        Vec3 offset = spawnOffset(direction, random);
+        double x = buttonPos.getX() + 0.5D + offset.x;
+        double z = buttonPos.getZ() + 0.5D + offset.z;
+        // busca un hueco libre con suelo para que no aparezca dentro de un bloque
+        int height = Math.max(1, (int) Math.ceil(animal.getBbHeight()));
+        BlockPos spot = findSpawnSpot(level, BlockPos.containing(x, buttonPos.getY(), z), height);
+        animal.snapTo(x, spot.getY(), z, random.nextFloat() * 360.0F, 0.0F);
+        level.addFreshEntity(animal);
+    }
 
-        chicken.setInvulnerable(true);
-        chicken.snapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, random.nextFloat() * 360.0F, 0.0F);
-        level.addFreshEntity(chicken);
+    private static Chicken createChicken(ServerLevel level) {
+        Chicken chicken = EntityTypes.CHICKEN.create(level, EntitySpawnReason.TRIGGERED);
+        if (chicken == null) {
+            return null;
+        }
+        chicken.setVariant(pickVariant(level, Registries.CHICKEN_VARIANT));
+        return chicken;
+    }
+
+    private static Cow createCow(ServerLevel level) {
+        Cow cow = EntityTypes.COW.create(level, EntitySpawnReason.TRIGGERED);
+        if (cow == null) {
+            return null;
+        }
+        cow.setVariant(pickVariant(level, Registries.COW_VARIANT));
+        return cow;
+    }
+
+    private static Sheep createSheep(ServerLevel level) {
+        Sheep sheep = EntityTypes.SHEEP.create(level, EntitySpawnReason.TRIGGERED);
+        if (sheep == null) {
+            return null;
+        }
+        sheep.setColor(DyeColor.VALUES.get(level.getRandom().nextInt(DyeColor.VALUES.size())));
+        sheep.setSheared(false);
+        return sheep;
+    }
+
+    private static <T> Holder.Reference<T> pickVariant(ServerLevel level, ResourceKey<Registry<T>> registry) {
+        List<Holder.Reference<T>> variants = level.registryAccess().lookupOrThrow(registry).listElements().toList();
+        return variants.get(level.getRandom().nextInt(variants.size()));
+    }
+
+    // Desplazamiento desde el centro del boton: sale en la direccion de la cara pulsada.
+    // Si el boton esta en el suelo o el techo (se pulso por arriba/abajo), sale hacia un lado al azar.
+    private static Vec3 spawnOffset(Direction direction, RandomSource random) {
+        if (direction.getAxis().isVertical()) {
+            double angle = random.nextDouble() * Math.PI * 2.0D;
+            return new Vec3(Math.cos(angle) * SPAWN_DISTANCE, 0.0D, Math.sin(angle) * SPAWN_DISTANCE);
+        }
+        return new Vec3(direction.getStepX() * SPAWN_DISTANCE, 0.0D, direction.getStepZ() * SPAWN_DISTANCE);
+    }
+
+    // Primer hueco cerca del boton con suelo solido y sus bloques de aire libres para que quepa el animal.
+    private static BlockPos findSpawnSpot(ServerLevel level, BlockPos origin, int height) {
+        for (int dy = 2; dy >= -3; dy--) {
+            BlockPos candidate = origin.offset(0, dy, 0);
+            if (!level.getBlockState(candidate.below()).isSolidRender()) {
+                continue;
+            }
+            boolean free = true;
+            for (int i = 0; i < height; i++) {
+                if (!level.getBlockState(candidate.above(i)).isAir()) {
+                    free = false;
+                    break;
+                }
+            }
+            if (free) {
+                return candidate;
+            }
+        }
+        return origin;
     }
 
     // Confeti de colores y sonidos alegres saliendo del boton
@@ -194,8 +279,8 @@ public class ExplotacionAnimalBlock extends Block {
         }
     }
 
-    // Rayo celestial: columna de luz que vacia todo desde el cielo hasta la bedrock y mata a todo ser vivo salvo las gallinas
-    private static void celestialRay(ServerLevel level, BlockPos pos) {
+    // Rayo celestial: columna de luz que vacia todo desde el cielo hasta la bedrock y mata a todo ser vivo salvo el animal de este bloque
+    private void celestialRay(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5D;
         double cz = pos.getZ() + 0.5D;
         int minY = level.getMinY();
@@ -211,10 +296,10 @@ public class ExplotacionAnimalBlock extends Block {
             level.sendParticles(ParticleTypes.FLAME, cx, y, cz, 4, RAY_RADIUS * 0.4D, 1.0D, RAY_RADIUS * 0.4D, 0.02D);
         }
 
-        // todo ser vivo en la columna muere, excepto las gallinas
+        // todo ser vivo en la columna muere, excepto el animal de este bloque
         AABB column = new AABB(cx - RAY_RADIUS, minY, cz - RAY_RADIUS, cx + RAY_RADIUS, maxY, cz + RAY_RADIUS);
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, column)) {
-            if (!(entity instanceof Chicken)) {
+            if (!isProtectedAnimal(entity)) {
                 entity.hurtServer(level, level.damageSources().genericKill(), Float.MAX_VALUE);
             }
         }
@@ -238,5 +323,14 @@ public class ExplotacionAnimalBlock extends Block {
                 }
             }
         }
+    }
+
+    // El animal de este bloque es el unico que sobrevive al rayo celestial
+    private boolean isProtectedAnimal(Entity entity) {
+        return switch (kind) {
+            case CHICKEN -> entity instanceof Chicken;
+            case COW -> entity instanceof Cow;
+            case SHEEP -> entity instanceof Sheep;
+        };
     }
 }

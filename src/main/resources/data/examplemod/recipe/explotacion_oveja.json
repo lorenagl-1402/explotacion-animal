@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RFR",
+    "ITI",
+    "SLS"
+  ],
+  "key": {
+    "R": "minecraft:white_dye",
+    "F": [
+      "minecraft:white_wool",
+      "minecraft:mutton"
+    ],
+    "I": "minecraft:iron_ingot",
+    "T": "minecraft:tnt",
+    "S": "minecraft:stone",
+    "L": "minecraft:lightning_rod"
+  },
+  "result": {
+    "id": "examplemod:explotacion_oveja",
+    "count": 1
+  }
+}

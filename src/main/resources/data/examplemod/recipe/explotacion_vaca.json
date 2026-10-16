@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RFR",
+    "ITI",
+    "SLS"
+  ],
+  "key": {
+    "R": "minecraft:black_dye",
+    "F": [
+      "minecraft:leather",
+      "minecraft:beef"
+    ],
+    "I": "minecraft:iron_ingot",
+    "T": "minecraft:tnt",
+    "S": "minecraft:stone",
+    "L": "minecraft:lightning_rod"
+  },
+  "result": {
+    "id": "examplemod:explotacion_vaca",
+    "count": 1
+  }
+}

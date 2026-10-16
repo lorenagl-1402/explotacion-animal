@@ -39,18 +39,29 @@ public final class ExampleMod {
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "examplemod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Bloque con el modelo explotacion_animal2: al pulsarlo sale una gallina, una explosion cercana o el dragon
-    public static final RegistryObject<Block> EXPLOTACION_ANIMAL_BLOCK = BLOCKS.register("explotacion_animal",
-        () -> new ExplotacionAnimalBlock(BlockBehaviour.Properties.of()
-            .setId(BLOCKS.key("explotacion_animal"))
+    // Boton rojo: al pulsarlo sale una gallina, una explosion cercana o el dragon
+    public static final RegistryObject<Block> EXPLOTACION_ANIMAL_BLOCK = registerButton("explotacion_animal", ExplotacionAnimalBlock.Kind.CHICKEN);
+    public static final RegistryObject<Item> EXPLOTACION_ANIMAL_ITEM = registerButtonItem("explotacion_animal", EXPLOTACION_ANIMAL_BLOCK);
+
+    // Boton negro: igual que el de gallinas, pero con vacas
+    public static final RegistryObject<Block> EXPLOTACION_VACA_BLOCK = registerButton("explotacion_vaca", ExplotacionAnimalBlock.Kind.COW);
+    public static final RegistryObject<Item> EXPLOTACION_VACA_ITEM = registerButtonItem("explotacion_vaca", EXPLOTACION_VACA_BLOCK);
+
+    // Boton blanco: igual que el de gallinas, pero con ovejas
+    public static final RegistryObject<Block> EXPLOTACION_OVEJA_BLOCK = registerButton("explotacion_oveja", ExplotacionAnimalBlock.Kind.SHEEP);
+    public static final RegistryObject<Item> EXPLOTACION_OVEJA_ITEM = registerButtonItem("explotacion_oveja", EXPLOTACION_OVEJA_BLOCK);
+
+    private static RegistryObject<Block> registerButton(String id, ExplotacionAnimalBlock.Kind kind) {
+        return BLOCKS.register(id, () -> new ExplotacionAnimalBlock(BlockBehaviour.Properties.of()
+            .setId(BLOCKS.key(id))
             .mapColor(MapColor.STONE)
             .strength(2.0f)
-            .noOcclusion()
-        )
-    );
-    public static final RegistryObject<Item> EXPLOTACION_ANIMAL_ITEM = ITEMS.register("explotacion_animal",
-        () -> new BlockItem(EXPLOTACION_ANIMAL_BLOCK.get(), new Item.Properties().setId(ITEMS.key("explotacion_animal")))
-    );
+            .noOcclusion(), kind));
+    }
+
+    private static RegistryObject<Item> registerButtonItem(String id, RegistryObject<Block> block) {
+        return ITEMS.register(id, () -> new BlockItem(block.get(), new Item.Properties().setId(ITEMS.key(id))));
+    }
 
     // Pestana creativa del mod, con el boton como icono, colocada despues de la pestana de combate
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
@@ -58,6 +69,8 @@ public final class ExampleMod {
             .icon(() -> EXPLOTACION_ANIMAL_ITEM.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(EXPLOTACION_ANIMAL_ITEM.get());
+                output.accept(EXPLOTACION_VACA_ITEM.get());
+                output.accept(EXPLOTACION_OVEJA_ITEM.get());
             }).build());
 
     public ExampleMod(FMLJavaModLoadingContext context) {

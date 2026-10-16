@@ -1,1 +1,8 @@
-{"block.examplemod.explotacion_animal":"Animal Exploitation","item.examplemod.explotacion_animal":"Animal Exploitation"}
+{
+  "block.examplemod.explotacion_animal": "Chicken Exploitation",
+  "item.examplemod.explotacion_animal": "Chicken Exploitation",
+  "block.examplemod.explotacion_vaca": "Cow Exploitation",
+  "item.examplemod.explotacion_vaca": "Cow Exploitation",
+  "block.examplemod.explotacion_oveja": "Sheep Exploitation",
+  "item.examplemod.explotacion_oveja": "Sheep Exploitation"
+}
