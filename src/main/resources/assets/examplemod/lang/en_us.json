@@ -4,5 +4,21 @@
   "block.examplemod.explotacion_vaca": "Cow Exploitation",
   "item.examplemod.explotacion_vaca": "Cow Exploitation",
   "block.examplemod.explotacion_oveja": "Sheep Exploitation",
-  "item.examplemod.explotacion_oveja": "Sheep Exploitation"
+  "item.examplemod.explotacion_oveja": "Sheep Exploitation",
+  "item.examplemod.pincel": "Paintbrush",
+  "item.examplemod.pincel.tooltip": "Right-click a chicken, cow or sheep to change its color.\nSneak: previous color.",
+  "examplemod.msg.color": "Animal color: %s",
+  "examplemod.msg.no_color": "This animal's color cannot be changed",
+  "item.examplemod.manual": "Animal Exploitation Manual",
+  "item.examplemod.manual.tooltip": "Everything the 3 buttons and the brush do",
+  "examplemod.manual.title": "Animal Exploitation",
+  "examplemod.manual.author": "The farm",
+  "examplemod.manual.p1": "ANIMAL EXPLOITATION MANUAL\n\nThree buttons and a brush.\n\nEach button spawns its animal (chicken, cow or sheep) with a burst of party effects.",
+  "examplemod.manual.p2": "CHICKEN BUTTON (red)\n\nSpawns chickens of a random variant. They are indestructible: no fire, no sword.\n\nRecipe: 2 redstone, 1 egg or feather, 2 iron, 1 TNT, 2 stone, 1 lightning rod.",
+  "examplemod.manual.p3": "COW BUTTON (black)\n\nSame, but with cows of any variant.\n\nRecipe: same as the chicken one, but the centre is 1 leather or beef and the corners are 2 black dye.",
+  "examplemod.manual.p4": "SHEEP BUTTON (white)\n\nSame, but with sheep in one of the 16 random colors.\n\nRecipe: same, but the centre is 1 white wool or mutton and the corners 2 white dye.",
+  "examplemod.manual.p5": "WHAT HAPPENS ON PRESS\n\n80% the animal spawns.\n15% explosion at the button: lots of noise and smoke, pushes and hurts, but never kills.\n5% dragon + night lightning.",
+  "examplemod.manual.p6": "CELESTIAL RAY\n\n1% of the time a celestial ray falls: a pillar of light that clears the terrain down to bedrock and kills every living thing... except the animal of that button.\n\nSneak while pressing: it always falls, for testing.",
+  "examplemod.manual.p7": "PAINTBRUSH\n\nRight-click a chicken, cow or sheep: changes its color, cycling through the 16 Minecraft colors in order.\n\nSneak: back to the previous color.\n\nRecipe: 3 wool (any color), 1 iron and 2 sticks.",
+  "examplemod.manual.p8": "NOTES\n\nSheep store their color like in vanilla.\n\nThe cow and chicken carry theirs in an invisible mark: everyone sees the same and it is saved to the world.\n\nMushroom cows cannot be painted."
 }

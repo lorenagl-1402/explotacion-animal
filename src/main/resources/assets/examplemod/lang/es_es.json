@@ -4,5 +4,21 @@
   "block.examplemod.explotacion_vaca": "Explotacion de Vacas",
   "item.examplemod.explotacion_vaca": "Explotacion de Vacas",
   "block.examplemod.explotacion_oveja": "Explotacion de Ovejas",
-  "item.examplemod.explotacion_oveja": "Explotacion de Ovejas"
+  "item.examplemod.explotacion_oveja": "Explotacion de Ovejas",
+  "item.examplemod.pincel": "Pincel",
+  "item.examplemod.pincel.tooltip": "Clic derecho sobre una gallina, vaca u oveja para cambiar su color.\nAgachado: color anterior.",
+  "examplemod.msg.color": "Color del animal: %s",
+  "examplemod.msg.no_color": "A este animal no se le puede cambiar el color",
+  "item.examplemod.manual": "Manual de Explotacion Animal",
+  "item.examplemod.manual.tooltip": "Todo lo que hacen los 3 botones y el pincel",
+  "examplemod.manual.title": "Explotacion Animal",
+  "examplemod.manual.author": "La granja",
+  "examplemod.manual.p1": "MANUAL DE EXPLOTACION ANIMAL\n\nTres botones y un pincel.\n\nCada boton suelta su animal (gallina, vaca u oveja) con un toque de fiesta.",
+  "examplemod.manual.p2": "BOTON DE GALLINAS (rojo)\n\nSuelta gallinas del tipo que salga, de cualquier variante. Son indestructibles: ni fuego ni espada.\n\nReceta: 2 redstone, 1 huevo o pluma, 2 hierro, 1 TNT, 2 piedra, 1 pararrayos.",
+  "examplemod.manual.p3": "BOTON DE VACAS (negro)\n\nIgual, pero con vacas de cualquier variante.\n\nReceta: igual que el de gallinas, pero el centro es 1 cuero o filete y las esquinas son 2 tinte negro.",
+  "examplemod.manual.p4": "BOTON DE OVEJAS (blanco)\n\nIgual, pero con ovejas de un color al azar de los 16.\n\nReceta: igual, pero el centro es 1 lana blanca o cordero y las esquinas 2 tinte blanco.",
+  "examplemod.manual.p5": "QUE PASA AL PULSAR\n\n80% sale el animal.\n15% explosion en el boton: mucho ruido y humo, empuja y hace dano, pero nunca mata.\n5% dragon + rayo de noche.",
+  "examplemod.manual.p6": "RAYO CELESTIAL\n\n1% de las veces cae un rayo celestial: columna de luz que vacia el terreno hasta la bedrock y mata a todo lo vivo... menos al animal de ese boton.\n\nAgachado al pulsar: cae siempre, para probarlo.",
+  "examplemod.manual.p7": "PINCEL\n\nClic derecho en una gallina, vaca u oveja: cambia su color, recorriendo los 16 colores de Minecraft en orden.\n\nAgachado: vuelve al color anterior.\n\nReceta: 3 lana (del color que sea), 1 hierro y 2 palos.",
+  "examplemod.manual.p8": "NOTAS\n\nLa oveja guarda el color como en vanilla.\n\nLa vaca y la gallina lo llevan en una marca invisible: se ve igual para todos y se guarda en el mundo.\n\nLa vaca mushroom no se pinta."
 }
